@@ -1,0 +1,1 @@
+# SHA-1 hashing utilities
