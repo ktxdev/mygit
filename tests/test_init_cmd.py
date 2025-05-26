@@ -5,7 +5,8 @@ import unittest
 
 from unittest import mock
 
-from src.commands.init_cmd import init_cmd, REPO_DIR_NAME, HEAD_FILE_NAME, CONFIG_FILE_NAME, OBJECTS_DIR_NAME, REFS_DIR_NAME
+from src.utils.constants import *
+from src.commands import init_cmd
 
 class TestInitCmd(unittest.TestCase):
     def setUp(self):

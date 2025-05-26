@@ -1,0 +1,7 @@
+REPO_DIR_NAME = ".mygit"
+HEAD_FILE_NAME = "HEAD"
+CONFIG_FILE_NAME = "config"
+OBJECTS_DIR_NAME = "objects"
+HEADS_DIR_NAME = "heads"
+REFS_DIR_NAME = "refs"
+DEFAULT_BRANCH_NAME = "main"
