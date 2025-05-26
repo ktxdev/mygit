@@ -34,8 +34,6 @@ def status_cmd():
         for file in files:
             file_paths.append(os.path.join(root, file))
             
-        
-    print(file_paths)
     return file_paths
 
 

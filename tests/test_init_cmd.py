@@ -6,7 +6,7 @@ import unittest
 from unittest import mock
 
 from src.utils.constants import *
-from src.commands import init_cmd
+from src.commands.init_cmd import init_cmd
 
 class TestInitCmd(unittest.TestCase):
     def setUp(self):
