@@ -34,6 +34,13 @@ class TestInitCmd(unittest.TestCase):
         objects_path = os.path.join(repo_path, OBJECTS_DIR_NAME)
         self.assertTrue(os.path.isdir(objects_path))
 
+    def test_init_cmd_with_relative_path_creates_objects_dir_subdirs(self):
+        init_cmd()
+        repo_path = os.path.join(self.temp_dir, REPO_DIR_NAME)
+        objects_path = os.path.join(repo_path, OBJECTS_DIR_NAME)
+        for subdir in OBJECTS_DIR_SUBDIRS:
+            self.assertTrue(os.path.isdir(os.path.join(objects_path, subdir)))
+
 
 if __name__ == "__main__":
     unittest.main()

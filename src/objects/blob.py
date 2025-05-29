@@ -1,24 +1,13 @@
 import os
 import zlib
+import hashlib
 
 from typing import Union
 
-from src.utils.hash import encode_content
 from src.utils.constants import REPO_DIR_NAME, OBJECTS_DIR_NAME
 
 
-def write_blob(source: Union[str, bytes], chunk_size: int = 8192) -> str:
-    # Determine if the source is a file path or content
-    is_file = isinstance(source, str) and os.path.isfile(source)
-
-    if is_file:
-        with open(source, "rb") as f:
-            content = f.read()
-    else:
-        content = source.encode() if isinstance(source, str) else source
-    
-    sha1_hex = encode_content(content)
-
+def write_blob(content: bytes, sha1_hex: str, chunk_size: int = 8192) -> str:
     # Compress the content
     compressed_content = zlib.compress(content)
     
