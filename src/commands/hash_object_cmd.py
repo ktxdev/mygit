@@ -15,6 +15,9 @@ def hash_object_cmd(input: str, write: bool) -> str:
     else:
         content = input.encode() if isinstance(input, str) else input
 
+    header = f"blob {len(content)}\0".encode()
+    content = header + content
+
     sha1_hex = hashlib.sha1(content).hexdigest()
 
     if write:

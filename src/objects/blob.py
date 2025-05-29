@@ -31,10 +31,7 @@ def read_blob(sha1_hex: str) -> bytes:
     with open(object_file_path, "rb") as f:
         compressed_data = f.read()
 
-    # Decompress the content
-    data = zlib.decompress(compressed_data)
-
-    return data.decode() if isinstance(data, bytes) else data
+    return zlib.decompress(compressed_data)
 
     
     
