@@ -3,6 +3,7 @@ import zlib
 
 from src.utils.constants import VALID_BLOB_MODES, REPO_DIR_NAME, INDEX_FILE_NAME
 from src.objects.blob import is_blob_object
+from src.index import get_index_entries
 
 class BlobError(Exception):
     pass
@@ -30,19 +31,14 @@ def add_index_from_cache(mode: str, sha1_hex: str, filename: str):
     if not is_blob_object(sha1_hex):
         raise  BlobError('Provided sha-1 is not for a blob object')
     
-    index_file_path = os.path.join(os.getcwd(), REPO_DIR_NAME, INDEX_FILE_NAME)
-    with open(index_file_path, 'rb') as f:
-        index_content = zlib.decompress(f.read())
-
-    index_content_entries = index_content.split(b'\n')
-    index_content_entries = [entry for entry in index_content_entries if entry]
+    index_entries = get_index_entries()
 
     # O is the stage number, where 
     # 0 - Normal (no conflict) — the version of the file ready to be committed, 
     # 1 - Base version (common ancestor in a merge)
     # 2 - "Ours" version (current branch during a merge)
     # 3 - "Theirs" version (branch being merged in)
-    updated_entries = add_or_update_entry(index_content_entries, mode, 0, sha1_hex, filename)
+    updated_entries = add_or_update_entry(index_entries, mode, 0, sha1_hex, filename)
     
     updated_index_content = b'\n'.join(updated_entries)
 
