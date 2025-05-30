@@ -8,6 +8,9 @@ from src.utils.constants import REPO_DIR_NAME, OBJECTS_DIR_NAME
 
 
 def write_blob(content: bytes, sha1_hex: str, chunk_size: int = 8192) -> str:
+    header = f"blob {len(content)}\0".encode()
+    content = header + content
+
     # Compress the content
     compressed_content = zlib.compress(content)
     
