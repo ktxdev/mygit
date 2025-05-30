@@ -19,6 +19,22 @@ def save_index_entries(entries: list[bytes]) -> None:
         f.write(zlib.compress(b'\n'.join(entries)))
 
 def update_index_entry(mode: str, stage_number: int, sha1_hex: str, filename: str) -> None:
+    """
+    Updates the index entry for the given filename.
+
+    Args:
+        mode: The mode of the object.
+        stage_number: The stage number of the object. 
+            0 - Normal (no conflict)
+            1 - base version (common ancestor in a merge), 
+            2 - ours version (current branch during a merge),
+            3 - theirs version (branch being merged in).
+        sha1_hex: The SHA-1 hash of the object.
+        filename: The filename of the object.
+
+    Returns:
+        None
+    """
     entries = get_index_entries()
 
     updated_entries = []

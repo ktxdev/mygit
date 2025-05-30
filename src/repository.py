@@ -4,7 +4,8 @@ import argparse
 from src.commands.init_cmd import init_cmd
 from src.commands.hash_object_cmd import hash_object_cmd
 from src.commands.cat_file_cmd import cat_file_cmd, get_object_type_and_content
-from src.commands.update_index_cmd import add_index_from_cache
+from src.commands.update_index_cmd import uodate_index_from_cache
+from src.objects.tree import write_tree
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="mygit", description="MyGit Repository Management")
@@ -35,6 +36,9 @@ def main() -> None:
     update_index_parser.add_argument("--add", action="store_true", help="Add the object to the index")
     update_index_parser.add_argument("--cacheinfo", action="store_true", help="Add the object to the index from cache")
 
+    # `write-tree` command
+    write_tree_parser = subparsers.add_parser('write-tree', help="Write the tree to the repository")
+
     args = parser.parse_args()
     if args.command == "init":
         init_cmd(args.path)
@@ -64,7 +68,11 @@ def main() -> None:
             if args.mode is None or args.sha1_hex is None or args.filename_or_path is None:
                 raise ValueError("Mode, SHA-1 hash, and filename are required for --cacheinfo")
             
-            add_index_from_cache(args.mode, args.sha1_hex, args.filename_or_path)
+            uodate_index_from_cache(args.mode, args.sha1_hex, args.filename_or_path)
+
+    elif args.command == "write-tree":
+        tree_sha1 = write_tree()
+        print(tree_sha1)
 
 if __name__ == "__main__":
     main()
