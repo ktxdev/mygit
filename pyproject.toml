@@ -1,0 +1,13 @@
+[project]
+name = "mygit"
+version = "0.1.0"
+description = "A simple git CLI clone"
+authors = [{ name = "Sean Huvaya", email = "sean.ktxdev@gmail.com" }]
+dependencies = []
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [ "setuptools>=61" ]
+
+[project.scripts]
+mygit = "repository:main"

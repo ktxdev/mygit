@@ -1,7 +1,7 @@
 import os
 import zlib
 
-from src.utils.constants import *
+from utils.constants import *
 
 
 class InitError(Exception):

@@ -1,7 +1,7 @@
 import os
 import zlib
 
-from src.utils.constants import REPO_DIR_NAME, INDEX_FILE_NAME
+from utils.constants import REPO_DIR_NAME, INDEX_FILE_NAME
 
 def get_index_entries() -> list[bytes]:
     index_file_path = os.path.join(os.getcwd(), REPO_DIR_NAME, INDEX_FILE_NAME)
@@ -17,6 +17,11 @@ def save_index_entries(entries: list[bytes]) -> None:
 
     with open(index_file_path, 'wb') as f:
         f.write(zlib.compress(b'\n'.join(entries)))
+
+def clear_index() -> None:
+    index_file_path = os.path.join(os.getcwd(), REPO_DIR_NAME, INDEX_FILE_NAME)
+    with open(index_file_path, 'wb') as f:
+        f.write(zlib.compress(b''))
 
 def update_index_entry(mode: str, stage_number: int, sha1_hex: str, filename: str) -> None:
     """

@@ -4,42 +4,26 @@ import hashlib
 
 from typing import Union
 
-from src.utils.constants import REPO_DIR_NAME, OBJECTS_DIR_NAME
+from objects.object import write_object
+from utils.constants import REPO_DIR_NAME, OBJECTS_DIR_NAME
 
-
-def write_blob(content: bytes, sha1_hex: str, chunk_size: int = 8192) -> str:
+def add_blob_header(content: bytes) -> bytes:
     header = f"blob {len(content)}\0".encode()
-    content = header + content
+    return header + content
 
-    # Compress the content
-    compressed_content = zlib.compress(content)
-    
-    # Write to .mygit/objects
-    object_dir_path = os.path.join(os.getcwd(), REPO_DIR_NAME, OBJECTS_DIR_NAME, sha1_hex[:2])
-    object_file_path = os.path.join(object_dir_path, sha1_hex[2:])
+def get_blob_sha1(content: bytes) -> str:
+    content = add_blob_header(content)
+    return hashlib.sha1(content).hexdigest()
 
-    # create the object directory if it doesn't exist
-    os.makedirs(object_dir_path, exist_ok=True)
 
-    # write the compressed content to the object file
-    with open(object_file_path, "wb") as f:
-        f.write(compressed_content)
+def write_blob(content: bytes) -> str:
+    blob_sha1 = get_blob_sha1(content)
+    content = add_blob_header(content)
 
-    return sha1_hex
+    write_object(content, blob_sha1)
 
-def read_blob(sha1_hex: str) -> bytes:
-    object_dir_path = os.path.join(os.getcwd(), REPO_DIR_NAME, OBJECTS_DIR_NAME, sha1_hex[:2])
-    object_file_path = os.path.join(object_dir_path, sha1_hex[2:])
+    return blob_sha1
 
-    with open(object_file_path, "rb") as f:
-        compressed_data = f.read()
-
-    return zlib.decompress(compressed_data)
-
-def is_blob_object(sha1_hex: str) -> bool:
-    object_dir_path = os.path.join(os.getcwd(), REPO_DIR_NAME, OBJECTS_DIR_NAME, sha1_hex[:2])
-    object_file_path = os.path.join(object_dir_path, sha1_hex[2:])
-    return os.path.isfile(object_file_path)
 
 
     

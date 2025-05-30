@@ -2,3 +2,5 @@
 .mygit/
 test.txt
 .mygitignore
+new.txt
+**/mygit.egg-info/

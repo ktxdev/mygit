@@ -1,12 +1,19 @@
 import os
 import zlib
 
-from src.utils.constants import VALID_BLOB_MODES, REPO_DIR_NAME, INDEX_FILE_NAME
-from src.objects.blob import is_blob_object
-from src.index import update_index_entry
+from utils.constants import VALID_BLOB_MODES, REPO_DIR_NAME, INDEX_FILE_NAME
+from objects.object import is_blob_object
+from index import update_index_entry
+from commands.hash_object_cmd import hash_object_cmd
 
 class BlobError(Exception):
     pass
+
+def update_index_from_file(filename: str):
+    # TODO: set mode based on file type
+    sha1_hex = hash_object_cmd(filename, True)
+    update_index_entry(100644, 0, sha1_hex, filename)
+    
 
 def uodate_index_from_cache(mode: str, sha1_hex: str, filename: str):
     if mode not in VALID_BLOB_MODES:

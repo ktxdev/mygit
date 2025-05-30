@@ -1,40 +1,33 @@
-import os
-import zlib
 import hashlib
 
-from src.utils.constants import REPO_DIR_NAME, INDEX_FILE_NAME, OBJECTS_DIR_NAME
+from index import clear_index, get_index_entries
+from utils.constants import REPO_DIR_NAME, INDEX_FILE_NAME, OBJECTS_DIR_NAME
+from objects.object import get_object_type, write_object
 
 def write_tree() -> str:
-    index_file_path = os.path.join(os.getcwd(), REPO_DIR_NAME, INDEX_FILE_NAME)
-    with open(index_file_path, 'rb') as f:
-        index_content = zlib.decompress(f.read())
+    index_content_entries = get_index_entries()
 
-    index_content_entries = index_content.split(b'\n')
-    index_content_entries = [entry for entry in index_content_entries if entry]
+    if not index_content_entries:
+        raise ValueError("No index entries found")
     
     tree_entries = []
     tree_size = 0
     for entry in index_content_entries:
         mode, filename, _, sha1_hex = entry.split(b' ')
-        tree_entry = mode + b" " + filename + b"\x00" + sha1_hex
+        object_type = get_object_type(sha1_hex.decode())
+
+        tree_entry = mode + b" " + filename + b" " + sha1_hex
         tree_entries.append(tree_entry)
-        tree_size += len(tree_entry)
+        tree_size += len(f"{mode} {filename}".encode()) + 21
 
-    tree_header = f"tree {tree_size}\0".encode()
     tree_content = b'\n'.join(tree_entries)
-    tree_object = tree_header + tree_content
+    tree_header = f"tree {tree_size}\0".encode()
+    tree_content = tree_header + tree_content
 
-    tree_sha1 = hashlib.sha1(tree_object).hexdigest()
+    tree_sha1 = hashlib.sha1(tree_content).hexdigest()
 
-    # Write to .mygit/objects
-    object_dir_path = os.path.join(os.getcwd(), REPO_DIR_NAME, OBJECTS_DIR_NAME, tree_sha1[:2])
-    object_file_path = os.path.join(object_dir_path, tree_sha1[2:])
+    write_object(tree_content, tree_sha1)
 
-    # create the object directory if it doesn't exist
-    os.makedirs(object_dir_path, exist_ok=True)
-
-    # write the tree object to the file
-    with open(object_file_path, 'wb') as f:
-        f.write(zlib.compress(tree_object))
+    clear_index()
 
     return tree_sha1

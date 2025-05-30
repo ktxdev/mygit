@@ -1,11 +1,12 @@
 import sys
 import argparse
 
-from src.commands.init_cmd import init_cmd
-from src.commands.hash_object_cmd import hash_object_cmd
-from src.commands.cat_file_cmd import cat_file_cmd, get_object_type_and_content
-from src.commands.update_index_cmd import uodate_index_from_cache
-from src.objects.tree import write_tree
+from commands.init_cmd import init_cmd
+from commands.hash_object_cmd import hash_object_cmd
+from commands.cat_file_cmd import cat_file_cmd
+from objects.object import get_object_type
+from commands.update_index_cmd import uodate_index_from_cache, update_index_from_file
+from objects.tree import write_tree
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="mygit", description="MyGit Repository Management")
@@ -57,7 +58,7 @@ def main() -> None:
 
     elif args.command == "cat-file":
         if args.t:
-            object_type, _ = get_object_type_and_content(args.hash)
+            object_type = get_object_type(args.hash)
             print(object_type)
         else:
             content = cat_file_cmd(args.hash, args.p)
@@ -69,6 +70,9 @@ def main() -> None:
                 raise ValueError("Mode, SHA-1 hash, and filename are required for --cacheinfo")
             
             uodate_index_from_cache(args.mode, args.sha1_hex, args.filename_or_path)
+
+        elif args.add:
+            update_index_from_file(args.filename_or_path)
 
     elif args.command == "write-tree":
         tree_sha1 = write_tree()
