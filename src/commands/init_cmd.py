@@ -1,4 +1,5 @@
 import os
+import zlib
 
 from src.utils.constants import *
 
@@ -24,6 +25,10 @@ def init_cmd(dir_path: str = '.') -> None:
         os.makedirs(os.path.join(repo_dir_path, OBJECTS_DIR_NAME), exist_ok=True)
         for subdir in OBJECTS_DIR_SUBDIRS:
             os.makedirs(os.path.join(repo_dir_path, OBJECTS_DIR_NAME, subdir), exist_ok=True)
+
+        with open(os.path.join(repo_dir_path, INDEX_FILE_NAME), 'wb') as f:
+            f.write(zlib.compress(b''))
+        
 
         print(f"\nInitialized empty mygit repository in {repo_dir_path}")
     except Exception as e:

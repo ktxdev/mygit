@@ -21,3 +21,5 @@ def get_object_type_and_content(object_hash: str) -> tuple[str, str]:
     object_type, _ = header.split(" ")
 
     return object_type, content
+
+# TODO: add support for tree objects (Implement cat-file -p master^{tree})

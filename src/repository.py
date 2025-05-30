@@ -4,6 +4,7 @@ import argparse
 from src.commands.init_cmd import init_cmd
 from src.commands.hash_object_cmd import hash_object_cmd
 from src.commands.cat_file_cmd import cat_file_cmd, get_object_type_and_content
+from src.commands.update_index_cmd import add_index_from_cache
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="mygit", description="MyGit Repository Management")
@@ -25,6 +26,14 @@ def main() -> None:
     cat_file_parser.add_argument("-p", action="store_true", help="First figure out type of content, then display it appropriately")
     cat_file_parser.add_argument("-t", action="store_true", help="Display the type of the object")
     cat_file_parser.add_argument("hash", help="Hash of object to display")
+
+    # `update-index` command
+    update_index_parser = subparsers.add_parser('update-index', help="Update the index")
+    update_index_parser.add_argument("mode", type=int, nargs='?', default=None, help="Mode of the object")
+    update_index_parser.add_argument("sha1_hex", nargs='?', default=None, help="SHA-1 hash of the object")
+    update_index_parser.add_argument("filename_or_path", help="Filename or path of the object")
+    update_index_parser.add_argument("--add", action="store_true", help="Add the object to the index")
+    update_index_parser.add_argument("--cacheinfo", action="store_true", help="Add the object to the index from cache")
 
     args = parser.parse_args()
     if args.command == "init":
@@ -50,6 +59,12 @@ def main() -> None:
             content = cat_file_cmd(args.hash, args.p)
             print(content)
 
+    elif args.command == "update-index":
+        if args.cacheinfo:
+            if args.mode is None or args.sha1_hex is None or args.filename_or_path is None:
+                raise ValueError("Mode, SHA-1 hash, and filename are required for --cacheinfo")
+            
+            add_index_from_cache(args.mode, args.sha1_hex, args.filename_or_path)
 
 if __name__ == "__main__":
     main()

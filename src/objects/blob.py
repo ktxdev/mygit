@@ -33,6 +33,12 @@ def read_blob(sha1_hex: str) -> bytes:
 
     return zlib.decompress(compressed_data)
 
+def is_blob_object(sha1_hex: str) -> bool:
+    object_dir_path = os.path.join(os.getcwd(), REPO_DIR_NAME, OBJECTS_DIR_NAME, sha1_hex[:2])
+    object_file_path = os.path.join(object_dir_path, sha1_hex[2:])
+    return os.path.isfile(object_file_path)
+
+
     
     
     
