@@ -1,7 +1,7 @@
 import os
 import configparser
 
-from src.utils.constants import REPO_DIR_NAME, CONFIG_FILE_NAME
+from utils.constants import REPO_DIR_NAME, CONFIG_FILE_NAME
 
 class ConfigError(Exception):
     pass

@@ -7,8 +7,9 @@ OBJECTS_DIR_SUBDIRS = ["pack", "info"]
 HEADS_DIR_NAME = "heads"
 REFS_DIR_NAME = "refs"
 DEFAULT_BRANCH_NAME = "main"
-VALID_BLOB_MODES = [
+VALID_BLOB_OR_TREE_MODES = [
     100644, # normal file
     100755, # executable file
     120000, # Symbolic link
+    40000, # Tree
 ]

@@ -14,7 +14,6 @@ def write_tree() -> str:
     tree_size = 0
     for entry in index_content_entries:
         mode, filename, _, sha1_hex = entry.split(b' ')
-        object_type = get_object_type(sha1_hex.decode())
 
         tree_entry = mode + b" " + filename + b" " + sha1_hex
         tree_entries.append(tree_entry)
@@ -27,7 +26,5 @@ def write_tree() -> str:
     tree_sha1 = hashlib.sha1(tree_content).hexdigest()
 
     write_object(tree_content, tree_sha1)
-
-    clear_index()
 
     return tree_sha1

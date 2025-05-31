@@ -47,3 +47,6 @@ def get_object_content(sha1_hex: str) -> bytes:
 
 def is_blob_object(sha1_hex: str) -> bool:
     return get_object_type(sha1_hex) == "blob"
+
+def is_tree_object(sha1_hex: str) -> bool:
+    return get_object_type(sha1_hex) == "tree"

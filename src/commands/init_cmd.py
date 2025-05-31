@@ -28,7 +28,9 @@ def init_cmd(dir_path: str = '.') -> None:
 
         with open(os.path.join(repo_dir_path, INDEX_FILE_NAME), 'wb') as f:
             f.write(zlib.compress(b''))
-        
+
+        with open(os.path.join(repo_dir_path, CONFIG_FILE_NAME), 'w') as f:
+            f.write('')
 
         print(f"\nInitialized empty mygit repository in {repo_dir_path}")
     except Exception as e:
