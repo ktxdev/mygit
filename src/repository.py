@@ -61,6 +61,7 @@ def main() -> None:
 
     # `log` command
     log_parser = subparsers.add_parser('log', help="Show commit logs")
+    log_parser.add_argument("--stats", action="store_true", help="Show stats for each commit")
     log_parser.add_argument("commit_sha1", help="SHA-1 hash of the commit to show logs for")
 
     args = parser.parse_args()
@@ -122,7 +123,7 @@ def main() -> None:
         print(commit_sha1)
 
     elif args.command == "log":
-        print(log_cmd(args.commit_sha1))
+        print(log_cmd(args.commit_sha1, show_stats=args.stats))
 
 
 if __name__ == "__main__":

@@ -50,12 +50,12 @@ def write_commit(message: str, tree_sha1: str, parent_sha1: Union[str, None] = N
 
     return commit_sha1
 
-def get_serialized_commit_history(commit_sha1: str) -> list[str]:
+def get_serialized_commit_history(commit_sha1: str, show_stats: bool = False) -> list[str]:
     """
     Builds and returns the full commit history (metadata + diffs) from oldest to newest.
     """
     history = build_commit_history(commit_sha1)
-    return serialize_commit_history(history)
+    return serialize_commit_history(history, show_stats)
 
 
 def format_commit_metadata(commit_sha1: str) -> list[str]:
@@ -100,18 +100,20 @@ def generate_commit_diff(current_commit_sha1: str, previous_commit_sha1: str = N
     return [f"\n{diff}\n"]
 
 
-def serialize_commit_history(history: deque) -> list[str]:
+def serialize_commit_history(history: deque, show_stats: bool = False) -> list[str]:
     """
     Recursively serializes a list of commits and diffs from oldest to newest.
     """
     if len(history) == 1:
         current_sha1 = history.popleft()
         output = format_commit_metadata(current_sha1)
-        output.extend(generate_commit_diff(current_sha1))
+        if show_stats:
+            output.extend(generate_commit_diff(current_sha1))
         return output
 
     current_sha1 = history.popleft()
     output = format_commit_metadata(current_sha1)
-    output.extend(generate_commit_diff(current_sha1, history[0]))
+    if show_stats:
+        output.extend(generate_commit_diff(current_sha1, history[0]))
 
-    return output + serialize_commit_history(history)
+    return output + serialize_commit_history(history, show_stats)
