@@ -1,11 +1,27 @@
 import hashlib
-
+from collections import deque
 from typing import Union
 from datetime import datetime, timezone
 
 from objects.object import write_object, get_object_content
 from utils.config import get_config
 from utils.diff import calculate_diff_from_tree
+
+def build_commit_history(commit_sha1: str) -> list[str]:
+    history = deque()
+
+    while commit_sha1:
+        history.append(commit_sha1)
+        commit_content = get_object_content(commit_sha1)
+        commit_entries = [entry for entry in commit_content.split("\n") if entry]
+
+        if len(commit_entries) == 5:
+            commit_sha1 = commit_entries[1].split(" ")[1]
+        else:
+            commit_sha1 = None
+    
+    return history
+
 
 def write_commit(message: str, tree_sha1: str, parent_sha1: Union[str, None] = None) -> str:
     name = get_config("user.name")
@@ -34,26 +50,68 @@ def write_commit(message: str, tree_sha1: str, parent_sha1: Union[str, None] = N
 
     return commit_sha1
 
-def serialize_commit(commit_sha1: str) -> list[str]:
+def get_serialized_commit_history(commit_sha1: str) -> list[str]:
+    """
+    Builds and returns the full commit history (metadata + diffs) from oldest to newest.
+    """
+    history = build_commit_history(commit_sha1)
+    return serialize_commit_history(history)
+
+
+def format_commit_metadata(commit_sha1: str) -> list[str]:
+    """
+    Returns a formatted commit header: SHA, Author, Date, and message.
+    """
     commit_content = get_object_content(commit_sha1)
     commit_entries = [entry for entry in commit_content.split("\n") if entry]
 
-    serialized_entries = [f'commit {commit_sha1}']
-
-    calculate_diff_from_tree(commit_entries[0].split(" ")[1])
+    serialized = [f'commit {commit_sha1}']
     
     author_entry = commit_entries[2].split(" ")
     timezone_offset = author_entry[-1]
     timestamp = int(author_entry[-2])
     email = author_entry[-3]
-    name = " ".join(author_entry[1:len(author_entry)-3])
+    name = " ".join(author_entry[1:-3])
 
-    serialized_entries.append(f"Author: {name} {email}")
-    serialized_entries.append(f"Date: {datetime.fromtimestamp(timestamp).strftime('%a %b %d %H:%M:%S %Y')} {timezone_offset}")
-    serialized_entries.append(f"\n\t{commit_entries[-1]}\n")
-    
-    if len(commit_entries) == 5:
-        parent_sha1 = commit_entries[1].split(" ")[1]
-        serialized_entries.extend(serialize_commit(parent_sha1))
-    
-    return serialized_entries
+    serialized.append(f"Author: {name} {email}")
+    serialized.append(f"Date: {datetime.fromtimestamp(timestamp).strftime('%a %b %d %H:%M:%S %Y')} {timezone_offset}")
+    serialized.append(f"\n\t{commit_entries[-1]}\n")
+
+    return serialized
+
+
+def generate_commit_diff(current_commit_sha1: str, previous_commit_sha1: str = None) -> list[str]:
+    """
+    Returns formatted diff between two commits or from empty state if no parent.
+    """
+    current_content = get_object_content(current_commit_sha1)
+    current_entries = [entry for entry in current_content.split("\n") if entry]
+    current_tree_sha1 = current_entries[0].split(" ")[1]
+
+    if not previous_commit_sha1:
+        diff = calculate_diff_from_tree(tree_sha1=current_tree_sha1)
+        return [f"\n{diff}\n"]
+
+    previous_content = get_object_content(previous_commit_sha1)
+    previous_entries = [entry for entry in previous_content.split("\n") if entry]
+    previous_tree_sha1 = previous_entries[0].split(" ")[1]
+
+    diff = calculate_diff_from_tree(tree_sha1=current_tree_sha1, parent_tree_sha1=previous_tree_sha1)
+    return [f"\n{diff}\n"]
+
+
+def serialize_commit_history(history: deque) -> list[str]:
+    """
+    Recursively serializes a list of commits and diffs from oldest to newest.
+    """
+    if len(history) == 1:
+        current_sha1 = history.popleft()
+        output = format_commit_metadata(current_sha1)
+        output.extend(generate_commit_diff(current_sha1))
+        return output
+
+    current_sha1 = history.popleft()
+    output = format_commit_metadata(current_sha1)
+    output.extend(generate_commit_diff(current_sha1, history[0]))
+
+    return output + serialize_commit_history(history)
